@@ -15,7 +15,7 @@ public class Domain {
 
         @PrimaryKey
         @NotNull
-        private Long id;
+        private String uid;
         private String name;
         private String username;
         private String email_address;
@@ -30,20 +30,13 @@ public class Domain {
 
         }
 
-        public AppUser(@NonNull Long id, String username) {
-            this.id = id;
+        public AppUser(@NonNull String uid, String username) {
+            this.uid = uid;
             this.username = username;
         }
 
-        public AppUser(@NonNull Long id) {
-            this.id = id;
-        }
-
-        public AppUser(@NonNull Long id, String name, String username, String email_address) {
-            this.id = id;
-            this.name = name;
-            this.username = username;
-            this.email_address = email_address;
+        public AppUser(@NonNull String uid) {
+            this.uid = uid;
         }
 
         public AppUser(String name, String username, String email_address, String password) {
@@ -53,7 +46,7 @@ public class Domain {
             this.password = password;
         }
 
-        public AppUser(String name, String username, String email_address, String password, Boolean is_deleted, Boolean is_disabled,String role) {
+        public AppUser(String name, String username, String email_address, String password, Boolean is_deleted, Boolean is_disabled, String role) {
             this.name = name;
             this.username = username;
             this.email_address = email_address;
@@ -63,14 +56,26 @@ public class Domain {
             this.is_deleted = is_deleted;
         }
 
+        public AppUser(String name, String username, String email_address, String password, String created_at, String updated_at, Boolean is_deleted, Boolean is_disabled, String role) {
 
-        @NonNull
-        public Long getId() {
-            return id;
+            this.name = name;
+            this.username = username;
+            this.email_address = email_address;
+            this.password = password;
+            this.created_at = created_at;
+            this.updated_at = updated_at;
+            this.is_deleted = is_deleted;
+            this.is_disabled = is_disabled;
+            this.role = role;
         }
 
-        public void setId(@NonNull Long id) {
-            this.id = id;
+        @NonNull
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(@NonNull String uid) {
+            this.uid = uid;
         }
 
         public String getName() {

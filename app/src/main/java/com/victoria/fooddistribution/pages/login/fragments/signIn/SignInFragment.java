@@ -2,13 +2,19 @@ package com.victoria.fooddistribution.pages.login.fragments.signIn;
 
 import static com.victoria.fooddistribution.globals.GlobalRepository.userRepository;
 import static com.victoria.fooddistribution.globals.GlobalVariables.API_IP;
+import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECTION;
 import static com.victoria.fooddistribution.pages.welcome.WelcomeActivity.goToNextPage;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,15 +28,20 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.victoria.fooddistribution.R;
 import com.victoria.fooddistribution.domain.Domain;
+import com.victoria.fooddistribution.globals.userDb.UserViewModel;
 import com.victoria.fooddistribution.models.Models;
 import com.victoria.fooddistribution.pages.admin.AdminActivity;
 import com.victoria.fooddistribution.pages.welcome.WelcomeActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Objects;
 
 
 public class SignInFragment extends Fragment {
@@ -49,6 +60,7 @@ public class SignInFragment extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,7 +76,8 @@ public class SignInFragment extends Fragment {
         Button signInB = v.findViewById(R.id.signInB);
         signInB.setOnClickListener(view -> {
             if (validateForm(userIdF, passwordF)) {
-                postLoginForm();
+                //postLoginForm();
+                emergencySignIn(userIdF.getText().toString(),passwordF.getText().toString());
             }
         });
         return v;
@@ -87,20 +100,35 @@ public class SignInFragment extends Fragment {
 
     private void postLoginForm() {
         RequestQueue queue = Volley.newRequestQueue(requireContext());
-        String url = "http://"+API_IP+"/api/v1/login";
+        String url = "http://" + API_IP + "/api/v1/login";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
-
-            @Override
-            public void onResponse(JSONObject response) {
-                Toast.makeText(requireContext(), "Working", Toast.LENGTH_SHORT).show();
-            }
-        }, error -> Toast.makeText(requireActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, response -> Toast.makeText(requireContext(), "Working", Toast.LENGTH_SHORT).show(), error -> Toast.makeText(requireActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show());
 
         // Access the RequestQueue through your singleton class.
         queue.add(jsonObjectRequest);
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void emergencySignIn(String email, String password) {
+        signInUser(email,password);
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void signInUser(String s, String s1) {
+        showPb();
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(s, s1).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(), "User sign in", Toast.LENGTH_SHORT).show();
+                try {
+                    new Handler(Looper.myLooper()).postDelayed(() -> cacheUserDetails(getUser(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid())), 2000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(requireContext(), Objects.requireNonNull(task.getException()).toString(), Toast.LENGTH_SHORT).show();
+                hidePb();
+            }
+        });
     }
 
     private void showPb() {
@@ -111,13 +139,17 @@ public class SignInFragment extends Fragment {
         progressBar.setVisibility(View.GONE);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private Domain.AppUser getUser(String uid) {
+        return new ViewModelProvider(this).get(UserViewModel.class).getUser(uid).getValue();
+    }
+
     private void cacheUserDetails(Domain.AppUser appUser) {
         userRepository.insert(appUser);
-        proceedToNextPage();
+         proceedToNextPage();
     }
 
     private void proceedToNextPage() {
         goToNextPage(requireActivity(), userRepository.getUser().getRole());
-
     }
 }

@@ -3,15 +3,20 @@ package com.victoria.fooddistribution.pages.login.fragments.create;
 import static com.victoria.fooddistribution.globals.GlobalRepository.userRepository;
 import static com.victoria.fooddistribution.globals.GlobalVariables.API_IP;
 import static com.victoria.fooddistribution.globals.GlobalVariables.HY;
+import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECTION;
 import static com.victoria.fooddistribution.pages.welcome.WelcomeActivity.goToNextPage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -29,6 +34,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.util.CustomClassMapper;
 import com.google.gson.Gson;
 import com.victoria.fooddistribution.R;
@@ -37,11 +44,14 @@ import com.victoria.fooddistribution.models.AppRolesEnum;
 import com.victoria.fooddistribution.models.Models.NewUserForm;
 import com.victoria.fooddistribution.pages.admin.AdminActivity;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.ParameterizedType;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,6 +79,7 @@ public class CreateFragment extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("NonConstantResourceId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,11 +105,17 @@ public class CreateFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (usernames.contains(charSequence.toString())) {
-                    usernameF.setError("Username already exists");
-                    usernameValid = false;
-                } else {
-                    usernameValid = true;
+                if (!usernames.isEmpty()) {
+                    try {
+                        if (usernames.contains(charSequence.toString())) {
+                            usernameF.setError("Username already exists");
+                            usernameValid = false;
+                        } else {
+                            usernameValid = true;
+                        }
+                    } catch (Exception ignored) {
+
+                    }
                 }
             }
 
@@ -115,11 +132,17 @@ public class CreateFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (phoneNumbers.contains(charSequence.toString())) {
-                    phoneValid = false;
-                    phoneNo.setError("Phone number already exists");
-                } else {
-                    phoneValid = true;
+                try {
+                    if (!phoneNumbers.isEmpty()) {
+                        if (phoneNumbers.contains(charSequence.toString())) {
+                            phoneValid = false;
+                            phoneNo.setError("Phone number already exists");
+                        } else {
+                            phoneValid = true;
+                        }
+                    }
+                } catch (Exception ignored) {
+
                 }
             }
 
@@ -128,7 +151,6 @@ public class CreateFragment extends Fragment {
 
             }
         });
-
 
         RadioGroup roleGroup = v.findViewById(R.id.roleGroup);
         roleGroup.setOnCheckedChangeListener((radioGroup, id) -> {
@@ -157,7 +179,8 @@ public class CreateFragment extends Fragment {
             if (usernameValid) {
                 if (phoneValid) {
                     if (validateForm(usernameF, namesF, emailF, phoneNo, passwordF, cPasswordF)) {
-                        postUserForm();
+                        //postUserForm();
+                        emergencyCreate(new Domain.AppUser(newUserForm.getName(), newUserForm.getUsername(), newUserForm.getEmail_address(), newUserForm.getPassword(), LocalDateTime.now().toString(), LocalDateTime.now().toString(), false, false, newUserForm.getRole()));
                     }
                 } else {
                     Toast.makeText(requireContext(), "Phone Number Invalid", Toast.LENGTH_SHORT).show();
@@ -166,6 +189,7 @@ public class CreateFragment extends Fragment {
                 Toast.makeText(requireContext(), "Username Invalid", Toast.LENGTH_SHORT).show();
             }
         });
+
         return v;
     }
 
@@ -210,7 +234,7 @@ public class CreateFragment extends Fragment {
     private void postUserForm() {
         showPb();
         RequestQueue queue = Volley.newRequestQueue(requireContext());
-        String url = "http://"+API_IP+"/api/v1/auth/authnewuser";
+        String url = "http://" + API_IP + "/api/v1/auth/authnewuser";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, newUserForm, new Response.Listener<JSONObject>() {
 
@@ -239,14 +263,46 @@ public class CreateFragment extends Fragment {
 
     }
 
+    private void emergencyCreate(Domain.AppUser user) {
+        authNewUser(user);
+    }
 
-    private void cacheUserDetails (Domain.AppUser appUser) {
+    private void authNewUser(Domain.AppUser user) {
+        showPb();
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail_address(), user.getPassword()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                user.setUid(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid());
+                Toast.makeText(requireContext(), user.getUsername() + " Created", Toast.LENGTH_SHORT).show();
+                saveUserDetails(user);
+            } else {
+                hidePb();
+                Toast.makeText(requireContext(), Objects.requireNonNull(task.getException()).toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveUserDetails(Domain.AppUser user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(USER_COLLECTION).document(user.getUid()).set(user).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(), "User details saved", Toast.LENGTH_SHORT).show();
+                cacheUserDetails(user);
+                new Handler(Looper.myLooper()).postDelayed(this::proceedToNextPage, 2000);
+            } else {
+                hidePb();
+                Toast.makeText(requireContext(), Objects.requireNonNull(task.getException()).toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void cacheUserDetails(Domain.AppUser appUser) {
         userRepository.insert(appUser);
         proceedToNextPage();
     }
 
-    private void proceedToNextPage () {
-        goToNextPage(requireActivity(),userRepository.getUser().getRole());
+    private void proceedToNextPage() {
+        goToNextPage(requireActivity(), userRepository.getUser().getRole());
     }
 
 }
