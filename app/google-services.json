@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "480110309348",
+    "project_id": "foodconnect-a1fe0",
+    "storage_bucket": "foodconnect-a1fe0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480110309348:android:1008a55109d083624961f1",
+        "android_client_info": {
+          "package_name": "com.victoria.fooddistribution"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480110309348-rloiv1kctt5jpvcael0c83buodtbgc9g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNNkwQFSa9Zh4DEo8Oqxp-3lx4lXbRUK4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480110309348-rloiv1kctt5jpvcael0c83buodtbgc9g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "480110309348-j3bjh70378hlh17vp0kto8s6olrcknga.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.victoria.fooddistribution"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

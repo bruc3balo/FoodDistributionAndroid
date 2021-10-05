@@ -1,7 +1,7 @@
 package com.victoria.fooddistribution.globals.userDb;
 
 
-import static com.victoria.fooddistribution.globals.GlobalVariables.USERS;
+import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECTION;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -16,8 +16,8 @@ import com.victoria.fooddistribution.domain.Domain.AppUser;
 @Dao
 public interface UserDao {
 
-    String GET_USER = "SELECT * FROM " + USERS;
-    String CLEAR_USER = "DELETE FROM " + USERS;
+    String GET_USER = "SELECT * FROM " + USER_COLLECTION;
+    String CLEAR_USER = "DELETE FROM " + USER_COLLECTION;
 
 
     @Insert

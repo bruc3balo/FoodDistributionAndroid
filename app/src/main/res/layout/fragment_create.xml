@@ -35,7 +35,7 @@
 
             <EditText
                 android:drawableStart="@drawable/ic_person"
-                android:id="@+id/gamerTagF"
+                android:id="@+id/namesF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -64,6 +64,27 @@
                 android:gravity="center_vertical"
                 android:hint="@string/email_address"
                 android:inputType="textEmailAddress"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                android:textColorHint="@android:color/darker_gray"
+                android:textStyle="normal"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                tools:targetApi="m" />
+
+
+            <EditText
+                android:id="@+id/phoneF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="15dp"
+                android:drawableStart="@android:drawable/ic_menu_call"
+                android:drawablePadding="10dp"
+                android:drawableTint="@android:color/darker_gray"
+                android:gravity="center_vertical"
+                android:hint="@string/phone_number"
+                android:inputType="phone"
                 android:padding="10dp"
                 android:textColor="@color/black"
                 android:textColorHint="@android:color/darker_gray"
@@ -118,23 +139,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <RadioGroup
+                    android:id="@+id/roleGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <RadioButton
+                        android:id="@+id/roleBeneficiary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:checked="true"
                         android:text="@string/beneficiary"
                         android:gravity="center"/>
                     <RadioButton
+                        android:id="@+id/roleTransporter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="@string/transporter"
                         android:gravity="center"/>
                     <RadioButton
+                        android:id="@+id/roleCertified"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -142,6 +168,7 @@
                         android:gravity="center"/>
 
                     <RadioButton
+                        android:id="@+id/roleSeller"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -188,5 +215,11 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/createPb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

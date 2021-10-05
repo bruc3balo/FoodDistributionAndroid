@@ -1,5 +1,7 @@
 package com.victoria.fooddistribution.pages;
 
+import static com.victoria.fooddistribution.globals.GlobalVariables.SPLASH_TIME_OUT;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -29,7 +31,7 @@ public class SplashScreen extends AppCompatActivity {
 
         GlobalRepository.init(getApplication());
 
-        new Handler().postDelayed(this::goToNextPage, 1000);
+        new Handler().postDelayed(this::goToNextPage, SPLASH_TIME_OUT);
 
     }
 
@@ -48,4 +50,5 @@ public class SplashScreen extends AppCompatActivity {
     private void hidePb() {
         splashScreenBinding.splashScreenPb.setVisibility(View.GONE);
     }
+
 }

@@ -103,11 +103,11 @@
     <string name="remember_me">Remember me ?</string>
     <string name="sign_in">Sign in</string>
     <string name="transporter">Transporter</string>
-    <string name="seller">Seller</string>
     <string name="certified_auth">Certified Authority</string>
     <string name="beneficiary">Beneficiary</string>
     <string name="admin">Admin</string>
     <string name="email_address_or_username">Email Address or Username</string>
     <string name="username">Username</string>
     <string name="seller">Seller</string>
+    <string name="phone_number">Phone number</string>
 </resources>

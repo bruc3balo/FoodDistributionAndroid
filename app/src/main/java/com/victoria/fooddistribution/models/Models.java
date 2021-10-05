@@ -1,28 +1,47 @@
 package com.victoria.fooddistribution.models;
 
+import org.json.JSONObject;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 
-
 public class Models {
 
-    public static class NewUserForm {
+    public static class NewUserForm extends JSONObject {
+
+
+        private String uid;
         private String name;
         private String username;
         private String email_address;
         private String password;
+        private String phone_number;
+        private String id_number;
+        private String bio;
         private String role;
+
 
         public NewUserForm() {
         }
 
-        public NewUserForm(String name, String username, String email_address, String password, String role) {
+        public NewUserForm(String name, String username, String email_address, String password, String phone_number, String id_number, String bio, String role) {
             this.name = name;
             this.username = username;
             this.email_address = email_address;
             this.password = password;
+            this.phone_number = phone_number;
+            this.id_number = id_number;
+            this.bio = bio;
             this.role = role;
+        }
+
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
         }
 
         public String getName() {
@@ -49,12 +68,36 @@ public class Models {
             this.email_address = email_address;
         }
 
+        public String getPhone_number() {
+            return phone_number;
+        }
+
+        public void setPhone_number(String phone_number) {
+            this.phone_number = phone_number;
+        }
+
+        public String getId_number() {
+            return id_number;
+        }
+
+        public void setId_number(String id_number) {
+            this.id_number = id_number;
+        }
+
         public String getPassword() {
             return password;
         }
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getBio() {
+            return bio;
+        }
+
+        public void setBio(String bio) {
+            this.bio = bio;
         }
 
         public String getRole() {
@@ -64,7 +107,9 @@ public class Models {
         public void setRole(String role) {
             this.role = role;
         }
+
     }
+
 
     public static class ProductCreationUpdateFrom {
 
@@ -180,7 +225,7 @@ public class Models {
         }
     }
 
-    public static class UsernameAndPasswordAuthenticationRequest {
+    public static class UsernameAndPasswordAuthenticationRequest extends JSONObject {
 
         private String username;
         private String password;

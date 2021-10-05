@@ -1,5 +1,7 @@
 package com.victoria.fooddistribution.pages.certifiedAuth;
 
+import static com.victoria.fooddistribution.globals.GlobalMethods.logout;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -9,6 +11,7 @@ import android.view.MenuItem;
 
 import com.victoria.fooddistribution.R;
 import com.victoria.fooddistribution.databinding.ActivityCertifiedAuthorityBinding;
+import com.victoria.fooddistribution.pages.beneficiary.BeneficiaryActivity;
 
 public class CertifiedAuthorityActivity extends AppCompatActivity {
 
@@ -26,11 +29,9 @@ public class CertifiedAuthorityActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add("Logout").setIcon(R.drawable.logout).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                return false;
-            }
+        menu.add("Logout").setIcon(R.drawable.logout).setOnMenuItemClickListener(menuItem -> {
+            logout(CertifiedAuthorityActivity.this);
+            return false;
         }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }

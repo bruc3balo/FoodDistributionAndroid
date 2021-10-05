@@ -1,6 +1,6 @@
 package com.victoria.fooddistribution.domain;
 
-import static com.victoria.fooddistribution.globals.GlobalVariables.USERS;
+import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECTION;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -8,13 +8,9 @@ import androidx.room.PrimaryKey;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 public class Domain {
 
-    @Entity(tableName = USERS)
+    @Entity(tableName = USER_COLLECTION)
     public static class AppUser {
 
         @PrimaryKey
@@ -39,8 +35,8 @@ public class Domain {
             this.username = username;
         }
 
-        public AppUser(String name) {
-            this.name = name;
+        public AppUser(@NonNull Long id) {
+            this.id = id;
         }
 
         public AppUser(@NonNull Long id, String name, String username, String email_address) {
@@ -150,82 +146,5 @@ public class Domain {
         }
     }
 
-    public static class AppRole {
-
-        private Long id;
-        private String name;
-        private Set<Permissions> permissions = new LinkedHashSet<>();
-
-        public AppRole() {
-
-        }
-
-        public AppRole(String name) {
-            this.name = name;
-        }
-
-        public AppRole(String name, Set<Permissions> permissions) {
-            this.name = name;
-            this.permissions = permissions;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Set<Permissions> getPermissions() {
-            return permissions;
-        }
-
-        public void setPermissions(Set<Permissions> permissions) {
-            this.permissions = permissions;
-        }
-    }
-
-    public static class Permissions {
-
-        private Long id;
-        private String name;
-
-        public Permissions() {
-        }
-
-        public Permissions(String name) {
-            this.name = name;
-        }
-
-        public Permissions(Long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
 
 }

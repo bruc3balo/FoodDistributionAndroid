@@ -2,6 +2,8 @@ package com.victoria.fooddistribution.pages.welcome;
 
 import static com.victoria.fooddistribution.globals.GlobalRepository.userRepository;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +41,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
         populateTutorials();
 
-
         ViewPager2 tutorialViewPager = tutorialBinding.tutorialViewPager;
         TutorialVpAdapter tutorialVpAdapter = new TutorialVpAdapter(this, tutorialList);
         tutorialViewPager.setAdapter(tutorialVpAdapter);
@@ -55,7 +56,7 @@ public class WelcomeActivity extends AppCompatActivity {
             if (tutorialViewPager.getCurrentItem() != tutorialList.size() - 1) {
                 tutorialViewPager.setCurrentItem(tutorialViewPager.getCurrentItem() + 1);
             } else {
-                goToNextPage(userRepository.getUser().getRole());
+                goToNextPage(WelcomeActivity.this,userRepository.getUser().getRole());
             }
         });
 
@@ -66,8 +67,10 @@ public class WelcomeActivity extends AppCompatActivity {
     private void populateTutorials() {
         Models.TutorialModel tutorialModel = new Models.TutorialModel("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.clker.com%2Fcliparts%2F3%2Fm%2F1%2FO%2F7%2Fu%2Fsearch-icon-red-hi.png&f=1&nofb=1", "Look for the job you want ", "Search");
         Models.TutorialModel tutorialModel1 = new Models.TutorialModel("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fattractive-man-sleeping-home-couch-mobile-phone-digital-tablet-pad-his-hands-young-shirt-jeans-internet-61244350.jpg&f=1&nofb=1", "At the comfort of your couch", "Convinience");
+        Models.TutorialModel tutorialModel2 = new Models.TutorialModel("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fattractive-man-sleeping-home-couch-mobile-phone-digital-tablet-pad-his-hands-young-shirt-jeans-internet-61244350.jpg&f=1&nofb=1", "At the comfort of your couch", "Convinience");
         tutorialList.add(tutorialModel);
         tutorialList.add(tutorialModel1);
+        tutorialList.add(tutorialModel2);
     }
 
     private void setWindowColors() {
@@ -78,65 +81,67 @@ public class WelcomeActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.white));
             getWindow().setNavigationBarColor(getResources().getColor(R.color.white));
         }
-
     }
 
-    private void goToNextPage(String role) {
+    public static void goToNextPage(Activity activity,String role) {
         switch (role) {
-            case "ROLE_ADMIN": case "ROLE_ADMIN_TRAINEE":
-                goToAdminPage();
+            case "ROLE_ADMIN":
+            case "ROLE_ADMIN_TRAINEE":
+                goToAdminPage(activity);
                 break;
 
             case "ROLE_TRANSPORTER":
-                goToTransporterProviderPage();
+                goToTransporterProviderPage(activity);
                 break;
 
             case "ROLE_CERTIFIED_AUTHORITY":
-                goToCertifiedAuthorityPage();
+                goToCertifiedAuthorityPage(activity);
                 break;
 
-          /*  case "ROLE_DISTRIBUTOR":
+             /*  case "ROLE_DISTRIBUTOR":
                 goToDistributorPage();
                 break;*/
 
-            default: case "ROLE_BUYER":
-                goToBuyerPage();
+            default:
+            case "ROLE_BUYER":
+                goToBuyerPage(activity);
                 break;
 
             case "ROLE_SELLER":
-                goToSellerPage();
+                goToSellerPage(activity);
                 break;
         }
     }
 
-    private void goToAdminPage() {
-        startActivity(new Intent(this, AdminActivity.class));
-        finish();
+    public static void goToAdminPage(Activity activity) {
+        activity.startActivity(new Intent(activity, AdminActivity.class));
+        activity.finish();
     }
 
-
-    private void goToBuyerPage() {
-        startActivity(new Intent(this, BeneficiaryActivity.class));
-        finish();
+    private static void goToBuyerPage(Activity activity) {
+        activity.startActivity(new Intent(activity, BeneficiaryActivity.class));
+        activity.finish();
     }
 
-    private void goToSellerPage() {
-        startActivity(new Intent(this, SellerActivity.class));
-        finish();
+    private static void goToSellerPage(Activity activity) {
+        activity.startActivity(new Intent(activity, SellerActivity.class));
+        activity.finish();
     }
 
- /*   private void goToDistributorPage() {
+     /*   private void goToDistributorPage() {
         startActivity(new Intent(this, .class));
         finish();
     }*/
 
-    private void goToTransporterProviderPage() {
-        startActivity(new Intent(this, TransporterActivity.class));
-        finish();
+    private static void goToTransporterProviderPage(Activity activity) {
+        activity.startActivity(new Intent(activity, TransporterActivity.class));
+        activity.finish();
     }
 
-    private void goToCertifiedAuthorityPage() {
-        startActivity(new Intent(this, CertifiedAuthorityActivity.class));
-        finish();
+    private static void goToCertifiedAuthorityPage(Activity activity) {
+        activity.startActivity(new Intent(activity, CertifiedAuthorityActivity.class));
+        activity.finish();
     }
+
+
 }
