@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.victoria.fooddistribution">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FoodDistribution">
+        <activity
+            android:name=".pages.transporter.TransporterActivity"
+            android:exported="true" />
+        <activity
+            android:name=".pages.seller.SellerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".pages.certifiedAuth.CertifiedAuthorityActivity"
+            android:exported="true" />
+        <activity
+            android:name=".pages.beneficiary.BeneficiaryActivity"
+            android:exported="true" />
+        <activity
+            android:name=".pages.admin.AdminActivity"
+            android:exported="true" />
+        <activity
+            android:name=".pages.login.LoginActivity"
+            android:exported="true"
+            android:label="@string/title_activity_login"
+            android:theme="@style/NoActionBar" />
+        <activity
+            android:name=".pages.SplashScreen"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
