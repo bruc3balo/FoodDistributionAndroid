@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.victoria.fooddistribution"
-        minSdk 21
+        minSdk 24
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -26,16 +26,31 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         viewBinding true
+    }
+
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
     }
 }
 
 dependencies {
 
+
+    implementation 'com.auth0.android:jwtdecode:2.0.0'
+
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+
+    // and a dependency on vert.x
+    implementation 'io.vertx:vertx-core:4.2.0.Beta1'
+
     implementation platform('com.google.firebase:firebase-bom:28.4.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.firebase:firebase-analytics:19.0.2'
+    implementation 'com.google.code.gson:gson:2.8.8'
 
     implementation 'com.google.firebase:firebase-storage:20.0.0'
     implementation 'com.google.firebase:firebase-auth:21.0.1'
@@ -45,7 +60,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
 
     implementation 'androidx.browser:browser:1.3.0'
-    implementation 'com.android.volley:volley:1.2.1'
+   implementation 'com.android.volley:volley:1.2.1'
 
 
     implementation 'com.google.android.gms:play-services-maps:17.0.1'

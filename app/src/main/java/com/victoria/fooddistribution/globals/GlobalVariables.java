@@ -1,8 +1,9 @@
 package com.victoria.fooddistribution.globals;
 
+
 public class GlobalVariables {
 
-    public static final String API_IP = "127.0.0.1:5000";
+    public static final String API_IP = "https://food-dstribution-api-vic.herokuapp.com";
     public static final int SPLASH_TIME_OUT = 2000;
 
     public static final String ROLE_COLLECTION = "roles";
@@ -33,4 +34,7 @@ public class GlobalVariables {
 
     //permissions
     public static final String PERMISSIONS = "permissions";
+
+
+
 }

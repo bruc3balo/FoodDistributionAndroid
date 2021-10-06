@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.victoria.fooddistribution.models.Models;
+
 import org.jetbrains.annotations.NotNull;
 
 public class Domain {
@@ -19,11 +21,15 @@ public class Domain {
         private String name;
         private String username;
         private String email_address;
+        private String phoneNumber;
         private String password;
         private String created_at;
         private String updated_at;
+        private String lastKnownLocation;
         private Boolean is_deleted;
         private Boolean is_disabled;
+        private String bio;
+        private String idNumber;
         private String role;
 
         public AppUser() {
@@ -69,6 +75,37 @@ public class Domain {
             this.role = role;
         }
 
+        public AppUser(String name, String username, String email_address, String phoneNumber, String password, String created_at, String updated_at, Boolean is_deleted, Boolean is_disabled, String role) {
+            this.name = name;
+            this.username = username;
+            this.email_address = email_address;
+            this.phoneNumber = phoneNumber;
+            this.password = password;
+            this.created_at = created_at;
+            this.updated_at = updated_at;
+            this.is_deleted = is_deleted;
+            this.is_disabled = is_disabled;
+            this.role = role;
+        }
+
+
+        public AppUser(@NonNull String uid, String name, String username, String id_number, String email_address, String phone_number, String password, String bio, String lastKnownLocation, String created_at, String updated_at, String role, Boolean is_deleted, Boolean is_disabled) {
+            this.uid = uid;
+            this.name = name;
+            this.username = username;
+            this.email_address = email_address;
+            this.phoneNumber = phone_number;
+            this.password = password;
+            this.lastKnownLocation = lastKnownLocation;
+            this.bio = bio;
+            this.idNumber = id_number;
+            this.created_at = created_at;
+            this.updated_at = updated_at;
+            this.is_deleted = is_deleted;
+            this.is_disabled = is_disabled;
+            this.role = role;
+        }
+
         @NonNull
         public String getUid() {
             return uid;
@@ -76,6 +113,22 @@ public class Domain {
 
         public void setUid(@NonNull String uid) {
             this.uid = uid;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getLastKnownLocation() {
+            return lastKnownLocation;
+        }
+
+        public void setLastKnownLocation(String lastKnownLocation) {
+            this.lastKnownLocation = lastKnownLocation;
         }
 
         public String getName() {
@@ -149,7 +202,24 @@ public class Domain {
         public void setRole(String role) {
             this.role = role;
         }
+
+        public String getBio() {
+            return bio;
+        }
+
+        public void setBio(String bio) {
+            this.bio = bio;
+        }
+
+        public String getIdNumber() {
+            return idNumber;
+        }
+
+        public void setIdNumber(String idNumber) {
+            this.idNumber = idNumber;
+        }
     }
+
 
 
 }

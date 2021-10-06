@@ -1,5 +1,6 @@
 package com.victoria.fooddistribution.pages.login.fragments.create;
 
+import static com.victoria.fooddistribution.globals.GlobalRepository.firebaseFirestore;
 import static com.victoria.fooddistribution.globals.GlobalRepository.userRepository;
 import static com.victoria.fooddistribution.globals.GlobalVariables.API_IP;
 import static com.victoria.fooddistribution.globals.GlobalVariables.HY;
@@ -7,14 +8,8 @@ import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECT
 import static com.victoria.fooddistribution.pages.welcome.WelcomeActivity.goToNextPage;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -28,30 +23,32 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.util.CustomClassMapper;
-import com.google.gson.Gson;
 import com.victoria.fooddistribution.R;
 import com.victoria.fooddistribution.domain.Domain;
+import com.victoria.fooddistribution.globals.userDb.UserViewModel;
 import com.victoria.fooddistribution.models.AppRolesEnum;
+import com.victoria.fooddistribution.models.Models;
 import com.victoria.fooddistribution.models.Models.NewUserForm;
-import com.victoria.fooddistribution.pages.admin.AdminActivity;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.ParameterizedType;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -116,6 +113,8 @@ public class CreateFragment extends Fragment {
                     } catch (Exception ignored) {
 
                     }
+                } else {
+                    usernameValid = true;
                 }
             }
 
@@ -124,6 +123,7 @@ public class CreateFragment extends Fragment {
 
             }
         });
+
         phoneNo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -140,6 +140,8 @@ public class CreateFragment extends Fragment {
                         } else {
                             phoneValid = true;
                         }
+                    } else {
+                        phoneValid = true;
                     }
                 } catch (Exception ignored) {
 
@@ -179,8 +181,15 @@ public class CreateFragment extends Fragment {
             if (usernameValid) {
                 if (phoneValid) {
                     if (validateForm(usernameF, namesF, emailF, phoneNo, passwordF, cPasswordF)) {
-                        //postUserForm();
-                        emergencyCreate(new Domain.AppUser(newUserForm.getName(), newUserForm.getUsername(), newUserForm.getEmail_address(), newUserForm.getPassword(), LocalDateTime.now().toString(), LocalDateTime.now().toString(), false, false, newUserForm.getRole()));
+                        try {
+                            postUserFormVolley();
+                        } catch (JsonProcessingException | JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        // saveUserDetails(newUserForm);
+                        // emergencyCreate(newUserForm);
+                        //emergencyCreate(new Domain.AppUser(newUserForm.getName(), newUserForm.getUsername(), newUserForm.getEmail_address(), newUserForm.getPassword(), LocalDateTime.now().toString(), LocalDateTime.now().toString(), false, false, newUserForm.getRole()));
                     }
                 } else {
                     Toast.makeText(requireContext(), "Phone Number Invalid", Toast.LENGTH_SHORT).show();
@@ -204,15 +213,15 @@ public class CreateFragment extends Fragment {
         } else if (email.getText().toString().isEmpty()) {
             email.requestFocus();
             email.setError("Required");
-        } else if (phone.getText().toString().startsWith("+254")) {
+        } else if (!phone.getText().toString().startsWith("+254")) {
             phone.requestFocus();
-            phone.setError("Wrong phone format");
-        } else if (phone.getText().toString().length() != 12) {
+            phone.setError("Wrong phone format must start with +254");
+        } else if (phone.getText().toString().length() < 12) {
             phone.requestFocus();
             phone.setError("Phone is to have 12 digits");
         } else if (password.getText().toString().length() < 6) {
             password.requestFocus();
-            password.setError("Required");
+            password.setError("Must not be less than 12 digits");
         } else if (!cPassword.getText().toString().equals(password.getText().toString())) {
             password.requestFocus();
             password.setError("Passwords don't match");
@@ -231,30 +240,32 @@ public class CreateFragment extends Fragment {
         progressBar.setVisibility(View.GONE);
     }
 
-    private void postUserForm() {
+    private void postUserFormVolley() throws JsonProcessingException, JSONException {
         showPb();
         RequestQueue queue = Volley.newRequestQueue(requireContext());
-        String url = "http://" + API_IP + "/api/v1/auth/authnewuser";
+        String url = API_IP + "/api/v1/auth/authnewuser";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, newUserForm, new Response.Listener<JSONObject>() {
+        ObjectMapper mapper = new ObjectMapper();
+        String data = mapper.writeValueAsString(newUserForm);
 
-            @Override
-            public void onResponse(JSONObject response) {
+        System.out.println(data);
 
-                hidePb();
-                try {
-                    Object jsonString = response.get("data");
-                    Domain.AppUser user = new Domain.AppUser();
-                    Gson gson = new Gson();
-                    user = gson.fromJson(jsonString.toString(), Domain.AppUser.class);
-                    cacheUserDetails(user);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        JSONObject jsonObject = new JSONObject(data);
 
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, response -> {
+            hidePb();
+            try {
+                Object jsonString = response.get("data");
+
+                Domain.AppUser user = mapper.convertValue(jsonString.toString(), Domain.AppUser.class);
+                cacheUserDetails(user);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
         }, error -> {
-            Toast.makeText(requireActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(requireActivity(), "" + error.networkResponse.statusCode, Toast.LENGTH_SHORT).show();
             hidePb();
         });
 
@@ -263,17 +274,29 @@ public class CreateFragment extends Fragment {
 
     }
 
-    private void emergencyCreate(Domain.AppUser user) {
-        authNewUser(user);
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void saveNewUser(Models.NewUserForm form) {
+        authNewUser(form);
     }
 
-    private void authNewUser(Domain.AppUser user) {
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void emergencyCreate(Models.NewUserForm form) {
+        authNewUser(form);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void authNewUser(Models.NewUserForm form) {
         showPb();
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail_address(), user.getPassword()).addOnCompleteListener(task -> {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(form.getEmail_address(), form.getPassword()).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                user.setUid(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid());
-                Toast.makeText(requireContext(), user.getUsername() + " Created", Toast.LENGTH_SHORT).show();
-                saveUserDetails(user);
+                form.setUid(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid());
+                Toast.makeText(requireContext(), form.getUsername() + " Created", Toast.LENGTH_SHORT).show();
+                try {
+                    saveUserDetails(form);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             } else {
                 hidePb();
                 Toast.makeText(requireContext(), Objects.requireNonNull(task.getException()).toString(), Toast.LENGTH_SHORT).show();
@@ -281,9 +304,26 @@ public class CreateFragment extends Fragment {
         });
     }
 
-    private void saveUserDetails(Domain.AppUser user) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(USER_COLLECTION).document(user.getUid()).set(user).addOnCompleteListener(task -> {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void saveUserDetails(Models.NewUserForm form) throws JsonProcessingException {
+
+
+        Domain.AppUser user = new Domain.AppUser(form.getUid(), form.getName(), form.getUsername(), form.getId_number(), form.getEmail_address(), form.getPhone_number(), form.getPassword(), form.getBio(), null, LocalDateTime.now().toString(), LocalDateTime.now().toString(), null, false, false);
+
+        try {
+            String data;
+            ObjectMapper mapper = new ObjectMapper();
+            if (form.getRole() != null) {
+                data = mapper.writeValueAsString(Objects.requireNonNull(new ViewModelProvider(this).get(UserViewModel.class).getRoleLive(form.getRole()).getValue()).orElse(null));
+            } else {
+                data = mapper.writeValueAsString(Objects.requireNonNull(new ViewModelProvider(this).get(UserViewModel.class).getRoleLive("ROLE_BUYER").getValue()).orElse(null));
+            }
+            user.setRole(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        firebaseFirestore.collection(USER_COLLECTION).document(user.getUid()).set(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(requireContext(), "User details saved", Toast.LENGTH_SHORT).show();
                 cacheUserDetails(user);
@@ -302,7 +342,8 @@ public class CreateFragment extends Fragment {
     }
 
     private void proceedToNextPage() {
-        goToNextPage(requireActivity(), userRepository.getUser().getRole());
+        Models.AppRole role = new ObjectMapper().convertValue(userRepository.getUser().getRole(), Models.AppRole.class);
+        goToNextPage(requireActivity(), role.getName());
     }
 
 }

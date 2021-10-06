@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.ProgressBar;
 
-import com.victoria.fooddistribution.R;
 import com.victoria.fooddistribution.databinding.ActivitySplashScreenBinding;
 import com.victoria.fooddistribution.globals.GlobalRepository;
 import com.victoria.fooddistribution.pages.login.LoginActivity;

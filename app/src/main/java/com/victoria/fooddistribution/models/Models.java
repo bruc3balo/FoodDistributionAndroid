@@ -1,15 +1,23 @@
 package com.victoria.fooddistribution.models;
 
+import static com.victoria.fooddistribution.globals.GlobalVariables.ID;
+import static com.victoria.fooddistribution.globals.GlobalVariables.NAME;
+import static com.victoria.fooddistribution.globals.GlobalVariables.PERMISSIONS;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.json.JSONObject;
 
+import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 
 public class Models {
 
     public static class NewUserForm extends JSONObject {
-
 
         private String uid;
         private String name;
@@ -23,6 +31,7 @@ public class Models {
 
 
         public NewUserForm() {
+
         }
 
         public NewUserForm(String name, String username, String email_address, String password, String phone_number, String id_number, String bio, String role) {
@@ -110,6 +119,60 @@ public class Models {
 
     }
 
+    public static class AppRole {
+
+        @JsonProperty(value = ID)
+        private String id;
+
+        @JsonProperty(value = NAME)
+        private String name;
+
+        @JsonProperty(PERMISSIONS)
+        private List<Permissions> permissions = new ArrayList<>();
+
+        public AppRole() {
+        }
+
+        public AppRole(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public AppRole(String name) {
+            this.name = name;
+        }
+
+        public AppRole(String id, String name, List<Permissions> allowedPermissions) {
+            this.id = id;
+            this.name = name;
+            this.permissions = allowedPermissions;
+        }
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<Permissions> getPermissions() {
+            return permissions;
+        }
+
+        public void setPermissions(List<Permissions> permissions) {
+            this.permissions = permissions;
+        }
+    }
 
     public static class ProductCreationUpdateFrom {
 
@@ -339,6 +402,39 @@ public class Models {
 
         public void setTitle(String title) {
             this.title = title;
+        }
+    }
+
+    public static class LoginResponse {
+        private String access_token;
+        private String refresh_token;
+        private String auth_type;
+
+        public LoginResponse() {
+        }
+
+        public String getAccess_token() {
+            return access_token;
+        }
+
+        public void setAccess_token(String access_token) {
+            this.access_token = access_token;
+        }
+
+        public String getRefresh_token() {
+            return refresh_token;
+        }
+
+        public void setRefresh_token(String refresh_token) {
+            this.refresh_token = refresh_token;
+        }
+
+        public String getAuth_type() {
+            return auth_type;
+        }
+
+        public void setAuth_type(String auth_type) {
+            this.auth_type = auth_type;
         }
     }
 

@@ -11,6 +11,7 @@ import com.victoria.fooddistribution.globals.userDb.UserRepository;
 public class GlobalRepository extends Application {
 
     public static UserRepository userRepository;
+
     @SuppressLint("StaticFieldLeak")
     public static FirebaseFirestore firebaseFirestore;
 
@@ -30,6 +31,8 @@ public class GlobalRepository extends Application {
 
             FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
             firebaseFirestore.setFirestoreSettings(settings);
+
+
             initialized = true;
         }
     }

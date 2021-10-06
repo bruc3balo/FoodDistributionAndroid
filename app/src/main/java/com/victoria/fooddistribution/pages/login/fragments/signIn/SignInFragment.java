@@ -2,17 +2,10 @@ package com.victoria.fooddistribution.pages.login.fragments.signIn;
 
 import static com.victoria.fooddistribution.globals.GlobalRepository.userRepository;
 import static com.victoria.fooddistribution.globals.GlobalVariables.API_IP;
-import static com.victoria.fooddistribution.globals.GlobalVariables.USER_COLLECTION;
 import static com.victoria.fooddistribution.pages.welcome.WelcomeActivity.goToNextPage;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -23,20 +16,23 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.auth0.android.jwt.Claim;
+import com.auth0.android.jwt.JWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
 import com.victoria.fooddistribution.R;
 import com.victoria.fooddistribution.domain.Domain;
 import com.victoria.fooddistribution.globals.userDb.UserViewModel;
 import com.victoria.fooddistribution.models.Models;
-import com.victoria.fooddistribution.pages.admin.AdminActivity;
-import com.victoria.fooddistribution.pages.welcome.WelcomeActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,24 +42,21 @@ import java.util.Objects;
 
 public class SignInFragment extends Fragment {
 
-    Models.UsernameAndPasswordAuthenticationRequest request;
+    private Models.UsernameAndPasswordAuthenticationRequest request;
     private ProgressBar progressBar;
 
     public SignInFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
@@ -76,8 +69,12 @@ public class SignInFragment extends Fragment {
         Button signInB = v.findViewById(R.id.signInB);
         signInB.setOnClickListener(view -> {
             if (validateForm(userIdF, passwordF)) {
-                //postLoginForm();
-                emergencySignIn(userIdF.getText().toString(),passwordF.getText().toString());
+                try {
+                    postLoginForm();
+                } catch (JsonProcessingException | JSONException e) {
+                    e.printStackTrace();
+                }
+                 //emergencySignIn(userIdF.getText().toString(),passwordF.getText().toString());
             }
         });
         return v;
@@ -98,11 +95,22 @@ public class SignInFragment extends Fragment {
         return valid;
     }
 
-    private void postLoginForm() {
+    private void postLoginForm() throws JSONException, JsonProcessingException {
         RequestQueue queue = Volley.newRequestQueue(requireContext());
-        String url = "http://" + API_IP + "/api/v1/login";
+        String url = API_IP + "/api/v1/login";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, response -> Toast.makeText(requireContext(), "Working", Toast.LENGTH_SHORT).show(), error -> Toast.makeText(requireActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show());
+        ObjectMapper mapper = new ObjectMapper();
+        String data = mapper.writeValueAsString(request);
+        JSONObject object = new JSONObject(data);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, object, response -> {
+            Models.LoginResponse loginResponse = mapper.convertValue(response, Models.LoginResponse.class);
+
+            Toast.makeText(requireContext(), "Working " + response, Toast.LENGTH_SHORT).show();
+
+            decodeToken(loginResponse.getAccess_token());
+        }, error -> Toast.makeText(requireActivity(), "Failed to login", Toast.LENGTH_SHORT).show());
+
 
         // Access the RequestQueue through your singleton class.
         queue.add(jsonObjectRequest);
@@ -110,7 +118,7 @@ public class SignInFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void emergencySignIn(String email, String password) {
-        signInUser(email,password);
+        signInUser(email, password);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -144,12 +152,32 @@ public class SignInFragment extends Fragment {
         return new ViewModelProvider(this).get(UserViewModel.class).getUser(uid).getValue();
     }
 
+    private void decodeToken(String token) {
+        try {
+            JWT jwt = new JWT(token);
+            String issuer = jwt.getIssuer();
+            Claim claim = jwt.getClaim("authorities");
+
+            Domain.AppUser user = Objects.requireNonNull(new ViewModelProvider(this).get(UserViewModel.class).getUserLive(issuer).getValue()).orElse(null);
+
+            if (user != null) {
+                cacheUserDetails(user);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Token invalid", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void cacheUserDetails(Domain.AppUser appUser) {
         userRepository.insert(appUser);
-         proceedToNextPage();
+        proceedToNextPage();
     }
 
     private void proceedToNextPage() {
-        goToNextPage(requireActivity(), userRepository.getUser().getRole());
+        Models.AppRole role = new ObjectMapper().convertValue(userRepository.getUser().getRole(), Models.AppRole.class);
+
+        goToNextPage(requireActivity(), role.getName());
     }
 }
